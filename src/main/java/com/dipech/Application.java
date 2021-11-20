@@ -16,15 +16,16 @@ public class Application {
      */
 
     // World's size
-    final int ROWS = 1;
-    final int COLS = 1;
+    final int ROWS = 10;
+    final int COLS = 10;
 
     /*
      * Mvc – Model (data that represents our game objects).
      * Just simple data like game objects coordinates, snake's moving direction, and so on...
      */
 
-    boolean isYes = true;
+    // Two-dimensional array of walls
+    boolean[][] walls = new boolean[ROWS][COLS];
 
     /*
      * mVc – View (how we're going to render our game objects).
@@ -33,7 +34,14 @@ public class Application {
      */
 
     public void onRender(char[][] world) {
-        world[0][0] = isYes ? 'Y' : 'N';
+        // Render walls
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                if (walls[row][col]) {
+                    world[row][col] = '#';
+                }
+            }
+        }
     }
 
     /*
@@ -42,18 +50,30 @@ public class Application {
      */
 
     public void onKeyPressed(int code) {
-        switch (code) {
-            case KeyEvent.VK_Y:
-                isYes = true;
-                break;
-            case KeyEvent.VK_N:
-                isYes = false;
-                break;
-        }
+
     }
 
     public void onGameStep() {
         // nothing is here for now
+    }
+
+    private void startGame() {
+        generateBorders();
+    }
+
+    private void generateBorders() {
+        for (int row = 0; row < ROWS; row++) {
+            walls[row][0] = true;
+        }
+        for (int row = 0; row < ROWS; row++) {
+            walls[row][COLS - 1] = true;
+        }
+        for (int col = 1; col < COLS - 1; col++) {
+            walls[0][col] = true;
+        }
+        for (int col = 1; col < COLS - 1; col++) {
+            walls[ROWS - 1][col] = true;
+        }
     }
 
     // #################################################################################################################
@@ -73,7 +93,7 @@ public class Application {
         try {
             InputStream fontFileStream = Application.class.getClassLoader().getResourceAsStream("square.ttf");
             assert fontFileStream != null;
-            font = Font.createFont(Font.TRUETYPE_FONT, fontFileStream).deriveFont(Font.PLAIN, 200);
+            font = Font.createFont(Font.TRUETYPE_FONT, fontFileStream).deriveFont(Font.PLAIN, 30);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -92,13 +112,32 @@ public class Application {
             return true;
         });
 
+        startGame();
+
         // Game Loop
         new Thread(() -> {
             char[][] world = new char[ROWS][COLS];
             while (true) {
                 onGameStep();
+
+                // Renderer step 1: clean the "world"
+                for (int row = 0; row < ROWS; row++) {
+                    for (int col = 0; col < COLS; col++) {
+                        world[row][col] = ' ';
+                    }
+                }
+                // Renderer step 2: fill in the "world"
                 onRender(world);
-                textArea.setText(String.valueOf(world[0][0]));
+                // Renderer step 3: translate "char[][] world" into just "String"
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < ROWS; i++) {
+                    builder.append(world[i]);
+                    if (i < ROWS - 1) {
+                        builder.append("\n");
+                    }
+                }
+                textArea.setText(builder.toString());
+
                 // Wait for N msecs (just to not render so often)
                 try {
                     Thread.sleep(150);
