@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
+import java.util.Random;
 
 public class Application {
 
@@ -11,13 +12,18 @@ public class Application {
     // #                                               GAME LOGIC PART                                                 #
     // #################################################################################################################
 
+    // Random number generator
+    final Random random = new Random();
+
     /*
      * Constants
      */
 
     // World's size
-    final int ROWS = 10;
-    final int COLS = 10;
+    final int ROWS = 30;
+    final int COLS = 30;
+    // How many obstacles to generate
+    final int OBSTACLES_COUNT = 20;
 
     /*
      * Mvc – Model (data that represents our game objects).
@@ -59,20 +65,23 @@ public class Application {
 
     private void startGame() {
         generateBorders();
+        generateObstacles();
     }
 
     private void generateBorders() {
         for (int row = 0; row < ROWS; row++) {
             walls[row][0] = true;
-        }
-        for (int row = 0; row < ROWS; row++) {
             walls[row][COLS - 1] = true;
         }
         for (int col = 1; col < COLS - 1; col++) {
             walls[0][col] = true;
-        }
-        for (int col = 1; col < COLS - 1; col++) {
             walls[ROWS - 1][col] = true;
+        }
+    }
+
+    private void generateObstacles() {
+        for (int i = 0; i < OBSTACLES_COUNT; i++) {
+            walls[random.nextInt(ROWS - 2) + 1][random.nextInt(COLS - 2) + 1] = true;
         }
     }
 
