@@ -32,6 +32,8 @@ public class Application {
 
     // Two-dimensional array of walls
     boolean[][] walls = new boolean[ROWS][COLS];
+    // Two-dimensional array of foods
+    boolean[][] foods = new boolean[ROWS][COLS];
 
     /*
      * mVc – View (how we're going to render our game objects).
@@ -45,6 +47,15 @@ public class Application {
             for (int col = 0; col < COLS; col++) {
                 if (walls[row][col]) {
                     world[row][col] = '#';
+                }
+            }
+        }
+
+        // Render foods
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                if (foods[row][col]) {
+                    world[row][col] = 'o';
                 }
             }
         }
@@ -66,6 +77,7 @@ public class Application {
     private void startGame() {
         generateBorders();
         generateObstacles();
+        generateFood();
     }
 
     private void generateBorders() {
@@ -80,9 +92,30 @@ public class Application {
     }
 
     private void generateObstacles() {
-        for (int i = 0; i < OBSTACLES_COUNT; i++) {
-            walls[random.nextInt(ROWS - 2) + 1][random.nextInt(COLS - 2) + 1] = true;
+        int counter = 0;
+        while (counter < OBSTACLES_COUNT) {
+            int row = random.nextInt(ROWS - 2) + 1;
+            int col = random.nextInt(COLS - 2) + 1;
+            if (!isWall(row, col)) {
+                walls[row][col] = true;
+                counter++;
+            }
         }
+    }
+
+    private void generateFood() {
+        while (true) {
+            int row = random.nextInt(ROWS - 2) + 1;
+            int col = random.nextInt(COLS - 2) + 1;
+            if (!isWall(row, col)) {
+                foods[row][col] = true;
+                return;
+            }
+        }
+    }
+
+    private boolean isWall(int row, int col) {
+        return walls[row][col];
     }
 
     // #################################################################################################################
