@@ -24,6 +24,10 @@ public class Application {
     final int COLS = 30;
     // How many obstacles to generate
     final int OBSTACLES_COUNT = 20;
+    // Newborn snake will this amount of segments
+    final int SNAKE_INITIAL_LENGTH = 5;
+    // How large our snake can be
+    final int SNAKE_MAX_SIZE = 200;
 
     /*
      * Mvc – Model (data that represents our game objects).
@@ -34,6 +38,9 @@ public class Application {
     boolean[][] walls = new boolean[ROWS][COLS];
     // Two-dimensional array of foods
     boolean[][] foods = new boolean[ROWS][COLS];
+    // Two one-dimensional arrays of snake body part coordinates
+    int[] snakeRow = new int[SNAKE_MAX_SIZE];
+    int[] snakeCol = new int[SNAKE_MAX_SIZE];
 
     /*
      * mVc – View (how we're going to render our game objects).
@@ -42,18 +49,13 @@ public class Application {
      */
 
     public void onRender(char[][] world) {
-        // Render walls
+        // Render walls and foods
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
                 if (walls[row][col]) {
                     world[row][col] = '#';
+                    continue;
                 }
-            }
-        }
-
-        // Render foods
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
                 if (foods[row][col]) {
                     world[row][col] = 'o';
                 }
@@ -96,7 +98,7 @@ public class Application {
         while (counter < OBSTACLES_COUNT) {
             int row = random.nextInt(ROWS - 2) + 1;
             int col = random.nextInt(COLS - 2) + 1;
-            if (!isWall(row, col)) {
+            if (isEmptySpace(row, col)) {
                 walls[row][col] = true;
                 counter++;
             }
@@ -105,9 +107,17 @@ public class Application {
 
     private void generateFood() {
         while (true) {
-            int row = random.nextInt(ROWS - 2) + 1;
-            int col = random.nextInt(COLS - 2) + 1;
-            if (!isWall(row, col)) {
+            int row = random.nextInt(ROWS - 4) + 2;
+            int col = random.nextInt(COLS - 4) + 2;
+            if (!isEmptySpace(row, col)) {
+                continue;
+            }
+            int emptyNeighborCellsCount = 0;
+            emptyNeighborCellsCount += isEmptySpace(row - 1, col) ? 1 : 0; // top
+            emptyNeighborCellsCount += isEmptySpace(row + 1, col) ? 1 : 0; // bottom
+            emptyNeighborCellsCount += isEmptySpace(row, col + 1) ? 1 : 0; // right
+            emptyNeighborCellsCount += isEmptySpace(row, col - 1) ? 1 : 0; // left
+            if (emptyNeighborCellsCount >= 3) {
                 foods[row][col] = true;
                 return;
             }
@@ -116,6 +126,14 @@ public class Application {
 
     private boolean isWall(int row, int col) {
         return walls[row][col];
+    }
+
+    private boolean isFood(int row, int col) {
+        return foods[row][col];
+    }
+
+    private boolean isEmptySpace(int row, int col) {
+        return !isWall(row, col) && !isFood(row, col);
     }
 
     // #################################################################################################################
