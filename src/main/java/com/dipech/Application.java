@@ -80,6 +80,7 @@ public class Application {
         generateBorders();
         generateObstacles();
         generateFood();
+        generateSnake();
     }
 
     private void generateBorders() {
@@ -124,6 +125,31 @@ public class Application {
         }
     }
 
+    private void generateSnake() {
+        for (int i = 0; i < SNAKE_MAX_SIZE; i++) {
+            snakeRow[i] = snakeCol[i] = -1;
+        }
+        int emptySpaceNeeded = SNAKE_INITIAL_LENGTH + 2;
+        while (true) {
+            int row = random.nextInt(ROWS - 2) + 1;
+            int col = random.nextInt(COLS - 2 - emptySpaceNeeded) + 1;
+            boolean enoughEmptySpace = true;
+            for (int i = 0; i < emptySpaceNeeded; i++) {
+                if (!isEmptySpace(row, col + i)) {
+                    enoughEmptySpace = false;
+                    break;
+                }
+            }
+            if (enoughEmptySpace) {
+                for (int i = 0; i < SNAKE_INITIAL_LENGTH; i++) {
+                    snakeRow[i] = row;
+                    snakeCol[i] = col + i;
+                }
+                return;
+            }
+        }
+    }
+
     private boolean isWall(int row, int col) {
         return walls[row][col];
     }
@@ -134,6 +160,17 @@ public class Application {
 
     private boolean isEmptySpace(int row, int col) {
         return !isWall(row, col) && !isFood(row, col);
+    }
+
+    private int getSnakeSize() {
+        int snakeSize = 0;
+        for (int i = 0; i < SNAKE_MAX_SIZE; i++) {
+            if (snakeRow[i] == -1 || snakeCol[i] == -1) {
+                break;
+            }
+            snakeSize++;
+        }
+        return snakeSize;
     }
 
     // #################################################################################################################
