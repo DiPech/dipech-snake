@@ -61,6 +61,14 @@ public class Application {
                 }
             }
         }
+
+        // Render snake
+        int snakeSize = getSnakeSize();
+        for (int i = 0; i < snakeSize - 1; i++) {
+            world[snakeRow[i]][snakeCol[i]] = 'O'; // character "O"
+        }
+        // Different symbol for snake's head
+        world[snakeRow[snakeSize - 1]][snakeCol[snakeSize - 1]] = '0'; // number "O"
     }
 
     /*
