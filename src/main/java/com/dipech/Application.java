@@ -64,11 +64,9 @@ public class Application {
 
         // Render snake
         int snakeSize = getSnakeSize();
-        for (int i = 0; i < snakeSize - 1; i++) {
-            world[snakeRow[i]][snakeCol[i]] = 'O'; // character "O"
+        for (int i = 0; i < snakeSize; i++) {
+            world[snakeRow[i]][snakeCol[i]] = i < snakeSize - 1 ? 'O' : '0';
         }
-        // Different symbol for snake's head
-        world[snakeRow[snakeSize - 1]][snakeCol[snakeSize - 1]] = '0'; // number "O"
     }
 
     /*
@@ -81,7 +79,18 @@ public class Application {
     }
 
     public void onGameStep() {
-        // nothing is here for now
+        moveSnake();
+    }
+
+    private void moveSnake() {
+        int snakeSize = getSnakeSize();
+        // Move every part except the head
+        for (int i = 0; i < snakeSize - 1; i++) {
+            snakeRow[i] = snakeRow[i + 1];
+            snakeCol[i] = snakeCol[i + 1];
+        }
+        // Move the head to the right
+        snakeCol[snakeSize - 1]++;
     }
 
     private void startGame() {
