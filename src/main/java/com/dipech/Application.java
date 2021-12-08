@@ -28,6 +28,11 @@ public class Application {
     final int SNAKE_INITIAL_LENGTH = 5;
     // How large our snake can be
     final int SNAKE_MAX_SIZE = 200;
+    // Possible snake moving directions
+    final int DIRECTION_UP = 0;
+    final int DIRECTION_DOWN = 1;
+    final int DIRECTION_LEFT = 2;
+    final int DIRECTION_RIGHT = 3;
 
     /*
      * Mvc – Model (data that represents our game objects).
@@ -41,6 +46,8 @@ public class Application {
     // Two one-dimensional arrays of snake body part coordinates
     int[] snakeRow = new int[SNAKE_MAX_SIZE];
     int[] snakeCol = new int[SNAKE_MAX_SIZE];
+    // Snake moving direction
+    int snakeDirection = DIRECTION_RIGHT;
 
     /*
      * mVc – View (how we're going to render our game objects).
@@ -75,7 +82,20 @@ public class Application {
      */
 
     public void onKeyPressed(int code) {
-
+        switch (code) {
+            case KeyEvent.VK_UP:
+                snakeDirection = DIRECTION_UP;
+                break;
+            case KeyEvent.VK_LEFT:
+                snakeDirection = DIRECTION_LEFT;
+                break;
+            case KeyEvent.VK_DOWN:
+                snakeDirection = DIRECTION_DOWN;
+                break;
+            case KeyEvent.VK_RIGHT:
+                snakeDirection = DIRECTION_RIGHT;
+                break;
+        }
     }
 
     public void onGameStep() {
@@ -89,8 +109,19 @@ public class Application {
             snakeRow[i] = snakeRow[i + 1];
             snakeCol[i] = snakeCol[i + 1];
         }
-        // Move the head to the right
-        snakeCol[snakeSize - 1]++;
+        // Move the head according moving direction
+        if (snakeDirection == DIRECTION_UP) {
+            snakeRow[snakeSize - 1]--;
+        }
+        if (snakeDirection == DIRECTION_DOWN) {
+            snakeRow[snakeSize - 1]++;
+        }
+        if (snakeDirection == DIRECTION_LEFT) {
+            snakeCol[snakeSize - 1]--;
+        }
+        if (snakeDirection == DIRECTION_RIGHT) {
+            snakeCol[snakeSize - 1]++;
+        }
     }
 
     private void startGame() {
