@@ -48,6 +48,8 @@ public class Application {
     int[] snakeCol = new int[SNAKE_MAX_SIZE];
     // Snake moving direction
     int snakeDirection = DIRECTION_RIGHT;
+    // When the snake bumps into something prohibited
+    boolean isGameOver = false;
 
     /*
      * mVc – View (how we're going to render our game objects).
@@ -84,22 +86,34 @@ public class Application {
     public void onKeyPressed(int code) {
         switch (code) {
             case KeyEvent.VK_UP:
-                snakeDirection = DIRECTION_UP;
+                if (snakeDirection != DIRECTION_DOWN) {
+                    snakeDirection = DIRECTION_UP;
+                }
                 break;
             case KeyEvent.VK_LEFT:
-                snakeDirection = DIRECTION_LEFT;
+                if (snakeDirection != DIRECTION_RIGHT) {
+                    snakeDirection = DIRECTION_LEFT;
+                }
                 break;
             case KeyEvent.VK_DOWN:
-                snakeDirection = DIRECTION_DOWN;
+                if (snakeDirection != DIRECTION_UP) {
+                    snakeDirection = DIRECTION_DOWN;
+                }
                 break;
             case KeyEvent.VK_RIGHT:
-                snakeDirection = DIRECTION_RIGHT;
+                if (snakeDirection != DIRECTION_LEFT) {
+                    snakeDirection = DIRECTION_RIGHT;
+                }
                 break;
         }
     }
 
     public void onGameStep() {
+        if (isGameOver) {
+            return;
+        }
         moveSnake();
+        handleObstacleCase();
     }
 
     private void moveSnake() {
@@ -121,6 +135,26 @@ public class Application {
         }
         if (snakeDirection == DIRECTION_RIGHT) {
             snakeCol[snakeSize - 1]++;
+        }
+    }
+
+    private void handleObstacleCase() {
+        int snakeSize = getSnakeSize();
+        int snakeHeadRow = snakeRow[snakeSize - 1];
+        int snakeHeadCol = snakeCol[snakeSize - 1];
+        // Is snake's head hit a wall item?
+        if (walls[snakeHeadRow][snakeHeadCol]) {
+            isGameOver = true;
+            return;
+        }
+        // Is snake's head hit a body's part of itself?
+        for (int i = 0; i < snakeSize - 1; i++) {
+            int snakeBodyPartRow = snakeRow[i];
+            int snakeBodyPartCol = snakeCol[i];
+            if (snakeHeadRow == snakeBodyPartRow && snakeHeadCol == snakeBodyPartCol) {
+                isGameOver = true;
+                return;
+            }
         }
     }
 
