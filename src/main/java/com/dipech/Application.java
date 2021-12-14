@@ -84,24 +84,27 @@ public class Application {
      */
 
     public void onKeyPressed(int code) {
+        int snakeSize = getSnakeSize();
+        int snakeHeadRow = snakeRow[snakeSize - 1];
+        int snakeHeadCol = snakeCol[snakeSize - 1];
         switch (code) {
             case KeyEvent.VK_UP:
-                if (snakeDirection != DIRECTION_DOWN) {
+                if (!isSnake(snakeHeadRow - 1, snakeHeadCol)) {
                     snakeDirection = DIRECTION_UP;
                 }
                 break;
             case KeyEvent.VK_LEFT:
-                if (snakeDirection != DIRECTION_RIGHT) {
+                if (!isSnake(snakeHeadRow, snakeHeadCol - 1)) {
                     snakeDirection = DIRECTION_LEFT;
                 }
                 break;
             case KeyEvent.VK_DOWN:
-                if (snakeDirection != DIRECTION_UP) {
+                if (!isSnake(snakeHeadRow + 1, snakeHeadCol)) {
                     snakeDirection = DIRECTION_DOWN;
                 }
                 break;
             case KeyEvent.VK_RIGHT:
-                if (snakeDirection != DIRECTION_LEFT) {
+                if (!isSnake(snakeHeadRow, snakeHeadCol + 1)) {
                     snakeDirection = DIRECTION_RIGHT;
                 }
                 break;
@@ -114,6 +117,7 @@ public class Application {
         }
         moveSnake();
         handleObstacleCase();
+        handleFoodCase();
     }
 
     private void moveSnake() {
@@ -154,6 +158,23 @@ public class Application {
             if (snakeHeadRow == snakeBodyPartRow && snakeHeadCol == snakeBodyPartCol) {
                 isGameOver = true;
                 return;
+            }
+        }
+    }
+
+    private void handleFoodCase() {
+        int snakeSize = getSnakeSize();
+        int snakeHeadRow = snakeRow[snakeSize - 1];
+        int snakeHeadCol = snakeCol[snakeSize - 1];
+        if (foods[snakeHeadRow][snakeHeadCol]) {
+            // Remove the old food item
+            foods[snakeHeadRow][snakeHeadCol] = false;
+            // Create a new food item
+            generateFood();
+            // Increase snake length (add a body part)
+            for (int i = snakeSize; i > 0; i--) {
+                snakeRow[i] = snakeRow[i - 1];
+                snakeCol[i] = snakeCol[i - 1];
             }
         }
     }
@@ -240,8 +261,17 @@ public class Application {
         return foods[row][col];
     }
 
+    private boolean isSnake(int row, int col) {
+        for (int i = 0; i < getSnakeSize(); i++) {
+            if (snakeRow[i] == row && snakeCol[i] == col) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean isEmptySpace(int row, int col) {
-        return !isWall(row, col) && !isFood(row, col);
+        return !isWall(row, col) && !isFood(row, col) && !isSnake(row, col);
     }
 
     private int getSnakeSize() {
