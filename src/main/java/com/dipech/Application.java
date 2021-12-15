@@ -50,6 +50,7 @@ public class Application {
     int snakeDirection = DIRECTION_RIGHT;
     // When the snake bumps into something prohibited
     boolean isGameOver = false;
+    boolean isGamePaused = true;
 
     /*
      * mVc – View (how we're going to render our game objects).
@@ -108,11 +109,28 @@ public class Application {
                     snakeDirection = DIRECTION_RIGHT;
                 }
                 break;
+
+            case KeyEvent.VK_R:
+                if (isGameOver || isGamePaused) {
+                    startGame();
+                }
+                break;
+            case KeyEvent.VK_P:
+                isGamePaused = !isGamePaused;
+                break;
+        }
+
+        // Arrow keys start the game if the game isn't over
+        if (code == KeyEvent.VK_UP || code == KeyEvent.VK_RIGHT ||
+            code == KeyEvent.VK_DOWN || code == KeyEvent.VK_LEFT) {
+            if (!isGameOver && isGamePaused) {
+                isGamePaused = false;
+            }
         }
     }
 
     public void onGameStep() {
-        if (isGameOver) {
+        if (isGameOver || isGamePaused) {
             return;
         }
         moveSnake();
@@ -146,19 +164,8 @@ public class Application {
         int snakeSize = getSnakeSize();
         int snakeHeadRow = snakeRow[snakeSize - 1];
         int snakeHeadCol = snakeCol[snakeSize - 1];
-        // Is snake's head hit a wall item?
-        if (walls[snakeHeadRow][snakeHeadCol]) {
+        if (isWall(snakeHeadRow, snakeHeadCol) || isSnake(snakeHeadRow, snakeHeadCol, false)) {
             isGameOver = true;
-            return;
-        }
-        // Is snake's head hit a body's part of itself?
-        for (int i = 0; i < snakeSize - 1; i++) {
-            int snakeBodyPartRow = snakeRow[i];
-            int snakeBodyPartCol = snakeCol[i];
-            if (snakeHeadRow == snakeBodyPartRow && snakeHeadCol == snakeBodyPartCol) {
-                isGameOver = true;
-                return;
-            }
         }
     }
 
@@ -180,10 +187,26 @@ public class Application {
     }
 
     private void startGame() {
+        resetWallsAndFoods();
+        resetGameState();
         generateBorders();
         generateObstacles();
         generateFood();
         generateSnake();
+    }
+
+    private void resetWallsAndFoods() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                walls[row][col] = foods[row][col] = false;
+            }
+        }
+    }
+
+    private void resetGameState() {
+        snakeDirection = DIRECTION_RIGHT;
+        isGameOver = false;
+        isGamePaused = true;
     }
 
     private void generateBorders() {
@@ -262,7 +285,15 @@ public class Application {
     }
 
     private boolean isSnake(int row, int col) {
-        for (int i = 0; i < getSnakeSize(); i++) {
+        return isSnake(row, col, true);
+    }
+
+    private boolean isSnake(int row, int col, boolean checkHead) {
+        int snakeSize = getSnakeSize();
+        if (!checkHead) {
+            snakeSize--;
+        }
+        for (int i = 0; i < snakeSize; i++) {
             if (snakeRow[i] == row && snakeCol[i] == col) {
                 return true;
             }
